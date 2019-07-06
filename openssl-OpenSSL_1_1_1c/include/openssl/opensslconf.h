@@ -22,9 +22,9 @@ extern "C" {
  * OpenSSL was configured with the following options:
  */
 
-#ifndef OPENSSL_SYS_WIN32
-# define OPENSSL_SYS_WIN32 1
-#endif
+/* #ifndef OPENSSL_SYS_WIN32
+# define OPENSSL_SYS_WIN32 0
+#endif */
 #ifndef OPENSSL_NO_MD2
 # define OPENSSL_NO_MD2
 #endif

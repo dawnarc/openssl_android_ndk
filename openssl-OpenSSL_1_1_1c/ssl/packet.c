@@ -94,7 +94,7 @@ static int wpacket_intern_init_len(WPACKET *pkt, size_t lenbytes)
     pkt->curr = 0;
     pkt->written = 0;
 
-    if ((pkt->subs = OPENSSL_zalloc(sizeof(*pkt->subs))) == NULL) {
+    if ((pkt->subs = (WPACKET_SUB *)OPENSSL_zalloc(sizeof(*pkt->subs))) == NULL) {
         SSLerr(SSL_F_WPACKET_INTERN_INIT_LEN, ERR_R_MALLOC_FAILURE);
         return 0;
     }
@@ -278,7 +278,7 @@ int WPACKET_start_sub_packet_len__(WPACKET *pkt, size_t lenbytes)
     if (!ossl_assert(pkt->subs != NULL))
         return 0;
 
-    if ((sub = OPENSSL_zalloc(sizeof(*sub))) == NULL) {
+    if ((sub = (WPACKET_SUB *)OPENSSL_zalloc(sizeof(*sub))) == NULL) {
         SSLerr(SSL_F_WPACKET_START_SUB_PACKET_LEN__, ERR_R_MALLOC_FAILURE);
         return 0;
     }

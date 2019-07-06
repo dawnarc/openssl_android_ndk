@@ -3293,7 +3293,7 @@ int ssl3_new(SSL *s)
 {
     SSL3_STATE *s3;
 
-    if ((s3 = OPENSSL_zalloc(sizeof(*s3))) == NULL)
+    if ((s3 = (SSL3_STATE *)OPENSSL_zalloc(sizeof(*s3))) == NULL)
         goto err;
     s->s3 = s3;
 
@@ -3518,7 +3518,7 @@ long ssl3_ctrl(SSL *s, int cmd, long larg, void *parg)
         break;
 
     case SSL_CTRL_SET_TLSEXT_STATUS_REQ_EXTS:
-        s->ext.ocsp.exts = parg;
+        s->ext.ocsp.exts = (X509_EXTENSIONS *)parg;
         ret = 1;
         break;
 
@@ -3528,7 +3528,7 @@ long ssl3_ctrl(SSL *s, int cmd, long larg, void *parg)
         break;
 
     case SSL_CTRL_SET_TLSEXT_STATUS_REQ_IDS:
-        s->ext.ocsp.ids = parg;
+        s->ext.ocsp.ids = (struct stack_st_OCSP_RESPID *)parg;
         ret = 1;
         break;
 
@@ -3541,7 +3541,7 @@ long ssl3_ctrl(SSL *s, int cmd, long larg, void *parg)
 
     case SSL_CTRL_SET_TLSEXT_STATUS_REQ_OCSP_RESP:
         OPENSSL_free(s->ext.ocsp.resp);
-        s->ext.ocsp.resp = parg;
+        s->ext.ocsp.resp = (unsigned char *)parg;
         s->ext.ocsp.resp_len = larg;
         ret = 1;
         break;
@@ -3605,7 +3605,7 @@ long ssl3_ctrl(SSL *s, int cmd, long larg, void *parg)
             clistlen = s->session->ext.supportedgroups_len;
             if (parg) {
                 size_t i;
-                int *cptr = parg;
+                int *cptr = (int *)parg;
 
                 for (i = 0; i < clistlen; i++) {
                     const TLS_GROUP_INFO *cinf = tls1_group_id_lookup(clist[i]);
