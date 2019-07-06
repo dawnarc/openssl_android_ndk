@@ -323,6 +323,14 @@
                           && (s)->method->version >= TLS1_3_VERSION \
                           && (s)->method->version != TLS_ANY_VERSION)
 
+/* Flag to indicate whether we should send a HelloRetryRequest or not */
+enum E_SSL_HRR_TYPE
+{
+	SSL_HRR_NONE = 0,
+	SSL_HRR_PENDING,
+	SSL_HRR_COMPLETE
+};
+	
 # define SSL_TREAT_AS_TLS13(s) \
     (SSL_IS_TLS13(s) || (s)->early_data_state == SSL_EARLY_DATA_CONNECTING \
      || (s)->early_data_state == SSL_EARLY_DATA_CONNECT_RETRY \
@@ -1181,10 +1189,7 @@ struct ssl_st {
     unsigned char cert_verify_hash[EVP_MAX_MD_SIZE];
     size_t cert_verify_hash_len;
 
-    /* Flag to indicate whether we should send a HelloRetryRequest or not */
-    enum {SSL_HRR_NONE = 0, SSL_HRR_PENDING, SSL_HRR_COMPLETE}
-        hello_retry_request;
-
+	E_SSL_HRR_TYPE hello_retry_request;
     /*
      * the session_id_context is used to ensure sessions are only reused in
      * the appropriate context

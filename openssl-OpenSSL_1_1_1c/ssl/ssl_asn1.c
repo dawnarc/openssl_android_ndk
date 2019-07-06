@@ -378,7 +378,7 @@ SSL_SESSION *d2i_SSL_SESSION(SSL_SESSION **a, const unsigned char **pp,
         ret->ticket_appdata_len = 0;
     }
 
-    M_ASN1_free_of(as, SSL_SESSION_ASN1);
+    M_ASN1_free_of((ASN1_VALUE *)as, SSL_SESSION_ASN1);
 
     if ((a != NULL) && (*a == NULL))
         *a = ret;
@@ -386,7 +386,7 @@ SSL_SESSION *d2i_SSL_SESSION(SSL_SESSION **a, const unsigned char **pp,
     return ret;
 
  err:
-    M_ASN1_free_of(as, SSL_SESSION_ASN1);
+    M_ASN1_free_of((ASN1_VALUE *)as, SSL_SESSION_ASN1);
     if ((a == NULL) || (*a != ret))
         SSL_SESSION_free(ret);
     return NULL;

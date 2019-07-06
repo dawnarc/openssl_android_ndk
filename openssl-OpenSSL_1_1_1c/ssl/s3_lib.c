@@ -3621,11 +3621,11 @@ long ssl3_ctrl(SSL *s, int cmd, long larg, void *parg)
 
     case SSL_CTRL_SET_GROUPS:
         return tls1_set_groups(&s->ext.supportedgroups,
-                               &s->ext.supportedgroups_len, parg, larg);
+                               &s->ext.supportedgroups_len, (int *)parg, larg);
 
     case SSL_CTRL_SET_GROUPS_LIST:
         return tls1_set_groups_list(&s->ext.supportedgroups,
-                                    &s->ext.supportedgroups_len, parg);
+                                    &s->ext.supportedgroups_len, (const char *)parg);
 
     case SSL_CTRL_GET_SHARED_GROUP:
         {
@@ -3640,20 +3640,20 @@ long ssl3_ctrl(SSL *s, int cmd, long larg, void *parg)
         }
 #endif
     case SSL_CTRL_SET_SIGALGS:
-        return tls1_set_sigalgs(s->cert, parg, larg, 0);
+        return tls1_set_sigalgs(s->cert, (const int *)parg, larg, 0);
 
     case SSL_CTRL_SET_SIGALGS_LIST:
-        return tls1_set_sigalgs_list(s->cert, parg, 0);
+        return tls1_set_sigalgs_list(s->cert, (const char *)parg, 0);
 
     case SSL_CTRL_SET_CLIENT_SIGALGS:
-        return tls1_set_sigalgs(s->cert, parg, larg, 1);
+        return tls1_set_sigalgs(s->cert, (const int *)parg, (size_t)larg, 1);
 
     case SSL_CTRL_SET_CLIENT_SIGALGS_LIST:
-        return tls1_set_sigalgs_list(s->cert, parg, 1);
+        return tls1_set_sigalgs_list(s->cert, (const char *)parg, 1);
 
     case SSL_CTRL_GET_CLIENT_CERT_TYPES:
         {
-            const unsigned char **pctype = parg;
+            const unsigned char **pctype = (const unsigned char **)parg;
             if (s->server || !s->s3->tmp.cert_req)
                 return 0;
             if (pctype)
@@ -3664,16 +3664,16 @@ long ssl3_ctrl(SSL *s, int cmd, long larg, void *parg)
     case SSL_CTRL_SET_CLIENT_CERT_TYPES:
         if (!s->server)
             return 0;
-        return ssl3_set_req_cert_type(s->cert, parg, larg);
+        return ssl3_set_req_cert_type(s->cert, (const unsigned char *)parg, larg);
 
     case SSL_CTRL_BUILD_CERT_CHAIN:
         return ssl_build_cert_chain(s, NULL, larg);
 
     case SSL_CTRL_SET_VERIFY_CERT_STORE:
-        return ssl_cert_set_cert_store(s->cert, parg, 0, larg);
+        return ssl_cert_set_cert_store(s->cert, (X509_STORE *)parg, 0, larg);
 
     case SSL_CTRL_SET_CHAIN_CERT_STORE:
-        return ssl_cert_set_cert_store(s->cert, parg, 1, larg);
+        return ssl_cert_set_cert_store(s->cert, (X509_STORE *)parg, 1, larg);
 
     case SSL_CTRL_GET_PEER_SIGNATURE_NID:
         if (s->s3->tmp.peer_sigalg == NULL)
@@ -3717,7 +3717,7 @@ long ssl3_ctrl(SSL *s, int cmd, long larg, void *parg)
     case SSL_CTRL_GET_EC_POINT_FORMATS:
         {
             SSL_SESSION *sess = s->session;
-            const unsigned char **pformat = parg;
+            const unsigned char **pformat = (const unsigned char **)parg;
 
             if (sess == NULL || sess->ext.ecpointformats == NULL)
                 return 0;
@@ -3825,7 +3825,7 @@ long ssl3_ctx_ctrl(SSL_CTX *ctx, int cmd, long larg, void *parg)
     case SSL_CTRL_SET_TLSEXT_TICKET_KEYS:
     case SSL_CTRL_GET_TLSEXT_TICKET_KEYS:
         {
-            unsigned char *keys = parg;
+            unsigned char *keys = (unsigned char *)parg;
             long tick_keylen = (sizeof(ctx->ext.tick_key_name) +
                                 sizeof(ctx->ext.secure->tick_hmac_key) +
                                 sizeof(ctx->ext.secure->tick_aes_key));
@@ -3918,36 +3918,36 @@ long ssl3_ctx_ctrl(SSL_CTX *ctx, int cmd, long larg, void *parg)
     case SSL_CTRL_SET_GROUPS:
         return tls1_set_groups(&ctx->ext.supportedgroups,
                                &ctx->ext.supportedgroups_len,
-                               parg, larg);
+                               (int *)parg, larg);
 
     case SSL_CTRL_SET_GROUPS_LIST:
         return tls1_set_groups_list(&ctx->ext.supportedgroups,
                                     &ctx->ext.supportedgroups_len,
-                                    parg);
+                                    (const char *)parg);
 #endif
     case SSL_CTRL_SET_SIGALGS:
-        return tls1_set_sigalgs(ctx->cert, parg, larg, 0);
+        return tls1_set_sigalgs(ctx->cert, (const int *)parg, larg, 0);
 
     case SSL_CTRL_SET_SIGALGS_LIST:
-        return tls1_set_sigalgs_list(ctx->cert, parg, 0);
+        return tls1_set_sigalgs_list(ctx->cert, (const char *)parg, 0);
 
     case SSL_CTRL_SET_CLIENT_SIGALGS:
-        return tls1_set_sigalgs(ctx->cert, parg, larg, 1);
+        return tls1_set_sigalgs(ctx->cert, (const int *)parg, larg, 1);
 
     case SSL_CTRL_SET_CLIENT_SIGALGS_LIST:
-        return tls1_set_sigalgs_list(ctx->cert, parg, 1);
+        return tls1_set_sigalgs_list(ctx->cert, (const char *)parg, 1);
 
     case SSL_CTRL_SET_CLIENT_CERT_TYPES:
-        return ssl3_set_req_cert_type(ctx->cert, parg, larg);
+        return ssl3_set_req_cert_type(ctx->cert, (const unsigned char *)parg, larg);
 
     case SSL_CTRL_BUILD_CERT_CHAIN:
         return ssl_build_cert_chain(NULL, ctx, larg);
 
     case SSL_CTRL_SET_VERIFY_CERT_STORE:
-        return ssl_cert_set_cert_store(ctx->cert, parg, 0, larg);
+        return ssl_cert_set_cert_store(ctx->cert, (X509_STORE *)parg, 0, larg);
 
     case SSL_CTRL_SET_CHAIN_CERT_STORE:
-        return ssl_cert_set_cert_store(ctx->cert, parg, 1, larg);
+        return ssl_cert_set_cert_store(ctx->cert, (X509_STORE *)parg, 1, larg);
 
         /* A Thawte special :-) */
     case SSL_CTRL_EXTRA_CHAIN_CERT:
@@ -4393,7 +4393,7 @@ static int ssl3_set_req_cert_type(CERT *c, const unsigned char *p, size_t len)
         return 1;
     if (len > 0xff)
         return 0;
-    c->ctype = OPENSSL_memdup(p, len);
+    c->ctype = (uint8_t *)OPENSSL_memdup(p, len);
     if (c->ctype == NULL)
         return 0;
     c->ctype_len = len;
@@ -4471,7 +4471,7 @@ static int ssl3_read_internal(SSL *s, void *buf, size_t len, int peek,
         ssl3_renegotiate_check(s, 0);
     s->s3->in_read_app_data = 1;
     ret =
-        s->method->ssl_read_bytes(s, SSL3_RT_APPLICATION_DATA, NULL, buf, len,
+        s->method->ssl_read_bytes(s, SSL3_RT_APPLICATION_DATA, NULL, (unsigned char *)buf, len,
                                   peek, readbytes);
     if ((ret == -1) && (s->s3->in_read_app_data == 2)) {
         /*
@@ -4483,7 +4483,7 @@ static int ssl3_read_internal(SSL *s, void *buf, size_t len, int peek,
          */
         ossl_statem_set_in_handshake(s, 1);
         ret =
-            s->method->ssl_read_bytes(s, SSL3_RT_APPLICATION_DATA, NULL, buf,
+            s->method->ssl_read_bytes(s, SSL3_RT_APPLICATION_DATA, NULL, (unsigned char *)buf,
                                       len, peek, readbytes);
         ossl_statem_set_in_handshake(s, 0);
     } else
@@ -4623,7 +4623,7 @@ int ssl_generate_master_secret(SSL *s, unsigned char *pms, size_t pmslen,
             pmslen = psklen;
 
         pskpmslen = 4 + pmslen + psklen;
-        pskpms = OPENSSL_malloc(pskpmslen);
+        pskpms = (unsigned char *)OPENSSL_malloc(pskpmslen);
         if (pskpms == NULL)
             goto err;
         t = pskpms;
@@ -4803,7 +4803,7 @@ int ssl_derive(SSL *s, EVP_PKEY *privkey, EVP_PKEY *pubkey, int gensecret)
         goto err;
     }
 
-    pms = OPENSSL_malloc(pmslen);
+    pms = (unsigned char *)OPENSSL_malloc(pmslen);
     if (pms == NULL) {
         SSLfatal(s, SSL_AD_INTERNAL_ERROR, SSL_F_SSL_DERIVE,
                  ERR_R_MALLOC_FAILURE);
